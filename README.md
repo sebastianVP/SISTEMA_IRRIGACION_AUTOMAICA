@@ -156,6 +156,9 @@ Ejemplo de tarjeta visual para un terreno en la aplicación web:
 ![Terreno 2](static/img/PARCELA2.png)  
 ![Terreno 3](static/img/PARCELA3.png)  
 
+### 6.1 Resultado final Interfaz Web
+![App ](static/img/app.png)
+
 ---
 
 ## 📈 7. Mejoras futuras
