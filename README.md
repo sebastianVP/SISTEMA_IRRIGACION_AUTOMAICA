@@ -36,7 +36,7 @@ El sistema está organizado en los siguientes archivos y carpetas:
 ### 2.1 Clonar el repositorio
 ```bash
 git clone git@github.com:sebastianVP/SISTEMA_IRRIGACION_AUTOMAICA.git
-cd SISTEMA_IRRIGACION_AUTOMAICA/web
+cd SISTEMA_IRRIGACION_AUTOMAICA
 ```
 
 ### 2.2 Requisitos previos
