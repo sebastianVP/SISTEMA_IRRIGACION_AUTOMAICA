@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistema de Riego - Estado en tiempo real</title>
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { 
+      background: linear-gradient(135deg, #1e1e2f, #2c3e50);
+      font-family: 'Segoe UI', Tahoma, sans-serif; 
+      color: #ecf0f1;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 🔹 Barra superior */
+    .header-bar {
+      background: linear-gradient(90deg, #00bcd4, #006f9c);
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .header-bar h1 {
+      margin: 0;
+      color: #fff;
+      font-weight: bold;
+      font-size: 28px;
+    }
+
+    .card-terreno {
+      background: #2c3e50;
+      border-radius: 14px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .card-terreno:hover { 
+      transform: scale(1.015); 
+      box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 8px;
+      color: #00bcd4;
+    }
+
+    .variable { font-size: 16px; margin-bottom: 6px; }
+    .valor { font-size: 20px; font-weight: bold; color: #f1f1f1; }
+    .valor span { font-size: 14px; color: #bdc3c7; margin-left: 4px; }
+
+    .bomba-status {
+      width: 55px; height: 55px;
+      border-radius: 50%;
+      margin: 0 auto 12px auto;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .bomba-on { background: #28a745; box-shadow: 0 0 14px rgba(40, 167, 69, 0.9); }
+    .bomba-off { background: #dc3545; box-shadow: 0 0 14px rgba(220, 53, 69, 0.9); }
+
+    .switch-btn {
+      padding: 8px 14px; 
+      border: none; 
+      border-radius: 10px;
+      color: #fff; 
+      cursor: pointer; 
+      font-weight: bold; 
+      width: 100%;
+      font-size: 15px;
+    }
+    .switch-on { background: #28a745; }
+    .switch-off { background: #dc3545; }
+    .switch-on:hover { background: #218838; }
+    .switch-off:hover { background: #c82333; }
+
+    .var-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .terreno-img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      object-fit: contain;
+      max-height: 140px;
+      background: #1a252f;
+      padding: 6px;
+    }
+
+    .right-controls {
+      display: flex; 
+      flex-direction: column;
+      align-items: center; 
+      justify-content: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 🔹 Encabezado en barra -->
+  <div class="header-bar">
+    <h1>🌱 Sistema de Riego - Estado en tiempo real</h1>
+  </div>
+
+  <div class="container mt-4">
+    <div id="contenedor"></div>
+  </div>
+
+  <script>
+    const socket = io();
+    const contenedor = document.getElementById("contenedor");
+    const estados = {};
+
+    const imagenes = {
+      1: "/static/img/PARCELA1.png",
+      2: "/static/img/PARCELA2.png",
+      3: "/static/img/PARCELA3.png"
+    };
+
+    function render() {
+      contenedor.innerHTML = "";
+      for (let tid of [1,2,3]) {
+        const data = estados[tid] || {};
+        const bombaEncendida = data.bomba === "ON";
+
+        const card = document.createElement("div");
+        card.className = "card-terreno";
+
+        card.innerHTML = `
+          <div class="row align-items-center">
+            <!-- Columna izquierda -->
+            <div class="col-md-3 text-center mb-2 mb-md-0">
+              <img src="${imagenes[tid]}" alt="Terreno ${tid}" class="terreno-img"/>
+              <div class="title">Terreno ${tid}</div>
+            </div>
+
+            <!-- Columna central -->
+            <div class="col-md-6">
+              <div class="var-grid">
+                <div class="variable">
+                  🌡️ Temp: <div class="valor">${data.temp ?? "-"}<span>°C</span></div>
+                </div>
+                <div class="variable">
+                  💧 Humedad Ambiente: <div class="valor">${data.humAmb ?? "-"}<span>%</span></div>
+                </div>
+                <div class="variable">
+                  🌱 Humedad Suelo: <div class="valor">${data.humSuelo ?? "-"}<span>%</span></div>
+                </div>
+                <div class="variable">
+                  📊 Volumen: <div class="valor">${data.volumen ?? "-"}<span>L</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Columna derecha -->
+            <div class="col-md-3 right-controls">
+              <div class="bomba-status ${bombaEncendida ? 'bomba-on' : 'bomba-off'}"></div>
+              <button class="switch-btn ${bombaEncendida ? 'switch-off' : 'switch-on'}"
+                onclick="control(${tid}, '${bombaEncendida ? 'OFF' : 'ON'}')">
+                ${bombaEncendida ? 'Apagar bomba' : 'Encender bomba'}
+              </button>
+            </div>
+          </div>
+        `;
+
+        contenedor.appendChild(card);
+      }
+    }
+
+    function control(tid, cmd) {
+      console.log("📤 Enviando control:", tid, cmd);
+      socket.emit("control", { terreno: tid, cmd });
+    }
+
+    socket.on("bulk", data => {
+      console.log("📦 Bulk recibido:", data);
+      for (let k in data) estados[k] = data[k];
+      render();
+    });
+
+    socket.on("estado", msg => {
+      console.log("🔄 Estado recibido:", msg);
+      estados[msg.terreno] = msg.payload;
+      render();
+    });
+  </script>
+</body>
+</html>
