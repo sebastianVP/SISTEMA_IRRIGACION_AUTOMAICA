@@ -152,9 +152,13 @@ El ciclo de comunicación entre los componentes es el siguiente:
 
 Ejemplo de tarjeta visual para un terreno en la aplicación web:  
 
-![Terreno 1](static/img/PARCELA1.png)  
-![Terreno 2](static/img/PARCELA2.png)  
-![Terreno 3](static/img/PARCELA3.png)  
+<!-- ![Terreno 1](static/img/PARCELA1.png)  -->
+<!-- ![Terreno 2](static/img/PARCELA2.png)  -->
+<!-- ![Terreno 3](static/img/PARCELA3.png)  -->
+
+<img src="static/img/PARCELA1.png" alt="Terreno 1" width="30%">
+<img src="static/img/PARCELA2.png" alt="Terreno 2" width="30%">
+<img src="static/img/PARCELA3.png" alt="Terreno 3" width="30%">
 
 ### 6.1 Resultado final Interfaz Web
 ![App ](static/img/app.png)
