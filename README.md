@@ -63,10 +63,17 @@ venv\Scripts\activate      # En Windows
 
 ### 2.4 Instalar dependencias
 
+#### 🔹 Opción 1: Instalar dependencias una por una
+
 Instala los paquetes necesarios para el funcionamiento del servidor Flask y la comunicación con MQTT:  
+
 
 ```bash
 pip install flask flask-socketio paho-mqtt eventlet
+```
+#### 🔹 Opción 2: Instalar todas desde requirements.txt
+```bash
+pip install -r requirements.txt
 ```
 
 ---
